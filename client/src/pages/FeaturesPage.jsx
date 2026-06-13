@@ -3,24 +3,12 @@ import { useNavigate } from "react-router-dom";
 import SectionHeading from "../components/SectionHeading";
 import FeatureCard from "../components/FeatureCard";
 import { platformFeatures } from "../data/content";
-import { useAuth } from "../contexts/AuthContext";
 
 export default function FeaturesPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
-  function openFeature() {
-    if (user?.role === "farmer") {
-      navigate("/dashboard#farmer-features");
-      return;
-    }
-
-    if (user?.role === "admin") {
-      navigate("/admin#admin-ai");
-      return;
-    }
-
-    navigate("/login");
+  function openFeature(feature) {
+    navigate(`/features/${feature.slug}`);
   }
 
   return (

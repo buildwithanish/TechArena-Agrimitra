@@ -46,132 +46,176 @@ export const heroSlides = [
 
 export const platformFeatures = [
   {
+    slug: "ai-crop-planning",
+    emoji: "🌾",
     title: "AI Crop Planning",
     description: "Recommends crop mixes using soil, climate, market demand, and farmer goals.",
     icon: Leaf,
     tag: "AI"
   },
   {
+    slug: "fertilizer-optimization",
+    emoji: "💊",
     title: "Fertilizer Optimization",
     description: "Balances NPK and micronutrients to reduce cost and over-application.",
     icon: Droplets,
     tag: "Yield"
   },
   {
-    title: "Pest Detection",
+    slug: "pest-detection",
+    emoji: "🐛",
+    title: "Pest Detection AI",
     description: "Flag likely infestations from uploaded images and symptom descriptions.",
     icon: Bug,
     tag: "Vision"
   },
   {
+    slug: "yield-prediction",
+    emoji: "📊",
     title: "Yield Prediction",
     description: "Forecast harvest output with stage-wise confidence bands and trend curves.",
     icon: TrendingUp,
     tag: "Forecasting"
   },
   {
+    slug: "market-price-prediction",
+    emoji: "📈",
     title: "Market Price Prediction",
     description: "Project mandi price swings and suggest the strongest selling windows.",
     icon: BarChart3,
     tag: "Markets"
   },
   {
-    title: "Insurance Predictor",
+    slug: "insurance-predictor",
+    emoji: "📉",
+    title: "Insurance Risk Analysis",
     description: "Estimate climate, crop, and claims risk before policy selection.",
     icon: ShieldCheck,
     tag: "Risk"
   },
   {
-    title: "Digital Twin",
+    slug: "digital-twin",
+    emoji: "🧪",
+    title: "Digital Twin Farm",
     description: "Model farm scenarios for irrigation, yield, and intervention planning.",
     icon: Cpu,
     tag: "Scenario"
   },
   {
-    title: "IoT Sensors",
+    slug: "iot-sensors",
+    emoji: "📡",
+    title: "IoT Sensor Monitoring",
     description: "Unify pH, moisture, temperature, and EC streams into one control layer.",
     icon: Radar,
     tag: "IoT"
   },
   {
+    slug: "satellite-monitoring",
+    emoji: "🛰",
     title: "Satellite Monitoring",
     description: "Track vegetation health and stress zones with NDVI-style remote sensing overlays.",
     icon: Globe2,
     tag: "Remote Sensing"
   },
   {
-    title: "Weather Data",
+    slug: "weather-data",
+    emoji: "🌦",
+    title: "Weather Intelligence",
     description: "Bring hyperlocal temperature, rain, humidity, and wind alerts to field teams.",
     icon: CloudRainWind,
     tag: "Climate"
   },
   {
-    title: "WhatsApp AI",
+    slug: "whatsapp-ai",
+    emoji: "💬",
+    title: "WhatsApp AI Assistant",
     description: "Offer advisory journeys and campaign messaging inside WhatsApp-style flows.",
     icon: MessageCircleMore,
     tag: "Engagement"
   },
   {
-    title: "Voice AI",
+    slug: "voice-ai",
+    emoji: "🎤",
+    title: "Voice AI Assistant",
     description: "Use speech input and TTS workflows for low-literacy field interactions.",
     icon: AudioLines,
     tag: "Voice"
   },
   {
-    title: "IVR System",
+    slug: "ivr-system",
+    emoji: "📞",
+    title: "Voice Call Assistant",
     description: "Route automated calls for advisories, reminders, and escalation workflows.",
     icon: PhoneCall,
     tag: "Automation"
   },
   {
+    slug: "supply-chain",
+    emoji: "🏭",
     title: "Supply Chain",
     description: "Monitor post-harvest movement, logistics timing, and buyer readiness.",
     icon: Factory,
     tag: "Ops"
   },
   {
-    title: "Alerts System",
+    slug: "alerts-system",
+    emoji: "🚨",
+    title: "Smart Alerts",
     description: "Push real-time triggers for pests, climate shifts, and sensor anomalies.",
     icon: BellRing,
     tag: "Realtime"
   },
   {
+    slug: "farm-ledger",
+    emoji: "💰",
     title: "Farm Ledger",
     description: "Track input spend, expected output, and margin snapshots across seasons.",
     icon: Wallet,
     tag: "Finance"
   },
   {
-    title: "Carbon Scoring",
+    slug: "carbon-scoring",
+    emoji: "🌍",
+    title: "Carbon Score",
     description: "Estimate regenerative practice impact with a simple sustainability index.",
     icon: Tractor,
     tag: "ESG"
   },
   {
-    title: "Water Analytics",
+    slug: "water-analytics",
+    emoji: "💧",
+    title: "Smart Irrigation",
     description: "Model irrigation intervals, water stress risk, and conservation efficiency.",
     icon: DatabaseZap,
     tag: "Resource"
   },
   {
+    slug: "community-advisory",
+    emoji: "🤝",
     title: "Community Advisory",
     description: "Distribute multilingual village-wide notices by zone and crop segment.",
     icon: MapPinned,
     tag: "Coordination"
   },
   {
+    slug: "credit-readiness",
+    emoji: "📊",
     title: "Credit Readiness",
     description: "Summarize operational health signals into lender-friendly credit views.",
     icon: Landmark,
     tag: "Capital"
   },
   {
-    title: "Subscription Billing",
+    slug: "subscription-billing",
+    emoji: "💳",
+    title: "Subscription Management",
     description: "Offer farmer and enterprise plans with checkout-ready subscription workflows.",
     icon: HandCoins,
     tag: "Business"
   },
   {
+    slug: "admin-intelligence",
+    emoji: "🔔",
     title: "Admin Intelligence",
     description: "See adoption, revenue, device health, and AI performance across the network.",
     icon: Microscope,

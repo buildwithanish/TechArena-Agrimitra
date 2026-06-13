@@ -7,8 +7,9 @@ import WhatsAppWidget from "./components/WhatsAppWidget";
 import ContactRegistrationModal from "./components/ContactRegistrationModal";
 import LandingPage from "./pages/LandingPage";
 import FeaturesPage from "./pages/FeaturesPage";
+import FeatureDetailPage from "./pages/FeatureDetailPage";
 import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
+import FarmerDashboardPage from "./pages/FarmerDashboardPage";
 import AdminPage from "./pages/AdminPage";
 
 function AppLayout() {
@@ -26,9 +27,10 @@ function AppLayout() {
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<LandingPage />} />
             <Route path="/features" element={<FeaturesPage />} />
+            <Route path="/features/:slug" element={<FeatureDetailPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route element={<ProtectedRoute roles={["farmer"]} />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<FarmerDashboardPage />} />
             </Route>
             <Route element={<ProtectedRoute roles={["admin"]} />}>
               <Route path="/admin" element={<AdminPage />} />

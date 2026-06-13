@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ShieldCheck, Sprout } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import GlassPanel from "../components/GlassPanel";
+import LanguageMenu from "../components/LanguageMenu";
 
 const quickAccessAccounts = [
   { role: "Farmer", email: "farmer@aivillagebrain.com", password: "Farmer@123" },
@@ -13,6 +14,7 @@ const quickAccessAccounts = [
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { login, signup } = useAuth();
   const [mode, setMode] = useState("login");
@@ -41,7 +43,8 @@ export default function LoginPage() {
           ? await login({ email: form.email, password: form.password })
           : await signup(form);
 
-      navigate(user.role === "admin" ? "/admin" : "/dashboard");
+      const returnTo = location.state?.from;
+      navigate(returnTo || (user.role === "admin" ? "/admin" : "/dashboard"), { replace: true });
     } catch (submitError) {
       setError(submitError.message);
     } finally {
@@ -66,6 +69,10 @@ export default function LoginPage() {
       exit={{ opacity: 0, y: -14 }}
       className="section-shell pb-16 pt-8"
     >
+      <div className="mb-4 flex justify-end">
+        <LanguageMenu />
+      </div>
+
       <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-[34px] bg-gradient-to-br from-primary-900 via-primary-800 to-primary-950 p-8 text-white shadow-[0_35px_90px_rgba(7,23,15,0.32)]">
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-white/10">

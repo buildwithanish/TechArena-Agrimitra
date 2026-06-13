@@ -1,3 +1,5 @@
+import { getSpeechCode } from "../config/languages.js";
+
 export function getWeatherSnapshot(location = "Nashik, Maharashtra") {
   return {
     location,
@@ -23,7 +25,7 @@ export function deliverWhatsAppMessage(payload = {}) {
 export function generateVoiceAdvisory(payload = {}) {
   return {
     status: "generated",
-    language: payload.language || "en-IN",
+    language: getSpeechCode(payload.language || "en"),
     transcript: payload.text || "Voice advisory synthesized successfully.",
     audioUrl: payload.audioUrl || null
   };

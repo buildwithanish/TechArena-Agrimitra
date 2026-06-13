@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import {
+  Activity,
+  Cpu,
+  IndianRupee,
+  Radar,
+  Settings2,
+  ShieldCheck,
+  Sparkles,
+  Users
+} from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -14,22 +23,23 @@ import {
   XAxis,
   YAxis
 } from "recharts";
-import { Cpu, IndianRupee, Radar, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { useAuth } from "../contexts/AuthContext";
-import { api } from "../services/api";
+import AdminSettingsPanel from "../components/admin/AdminSettingsPanel";
+import DashboardChartCard from "../components/dashboard/DashboardChartCard";
+import DashboardEmptyState from "../components/dashboard/DashboardEmptyState";
+import DashboardPanelCard from "../components/dashboard/DashboardPanelCard";
+import DashboardShell from "../components/dashboard/DashboardShell";
+import DashboardSkeleton from "../components/dashboard/DashboardSkeleton";
+import DashboardStatCard from "../components/dashboard/DashboardStatCard";
 import Sidebar from "../components/dashboard/Sidebar";
 import TopBar from "../components/dashboard/TopBar";
-import MetricCard from "../components/dashboard/MetricCard";
-import ChartBlock from "../components/dashboard/ChartBlock";
-import GlassPanel from "../components/GlassPanel";
-import AdminSettingsPanel from "../components/admin/AdminSettingsPanel";
+import { useAuth } from "../contexts/AuthContext";
+import { api } from "../services/api";
 
 const defaultAdmin = {
   metrics: {
     totalUsers: "1,284",
-    monthlyRevenue: "\u20B91.27L",
+    monthlyRevenue: "INR 1.27L",
     activeSensors: "2,408",
     predictionAccuracy: "93.4%"
   },
@@ -75,7 +85,7 @@ const defaultAdmin = {
   sensors: [
     { _id: "1", sensorType: "Soil Moisture", value: 41, unit: "%", status: "active", farm: { name: "GreenRise Farm" } },
     { _id: "2", sensorType: "Soil pH", value: 6.7, unit: "pH", status: "active", farm: { name: "GreenRise Farm" } },
-    { _id: "3", sensorType: "Temperature", value: 28, unit: "\u00B0C", status: "active", farm: { name: "GreenRise Farm" } }
+    { _id: "3", sensorType: "Temperature", value: 28, unit: "C", status: "active", farm: { name: "GreenRise Farm" } }
   ],
   sensorHealth: [
     { zone: "North cluster", active: 92 },
@@ -97,14 +107,24 @@ const defaultAdmin = {
 };
 
 const colors = ["#349e61", "#f3b300", "#5cc182", "#0f766e", "#86efac"];
+const adminSectionIds = [
+  "admin-overview",
+  "admin-analytics",
+  "admin-users",
+  "admin-revenue",
+  "admin-sensors",
+  "admin-ai",
+  "admin-leads",
+  "admin-settings"
+];
 
 export default function AdminPage() {
-  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dashboard, setDashboard] = useState(defaultAdmin);
   const [voiceQuery, setVoiceQuery] = useState("");
   const [adminError, setAdminError] = useState("");
+  const [loading, setLoading] = useState(true);
   const [creatingUser, setCreatingUser] = useState(false);
   const [newUser, setNewUser] = useState({
     name: "",
@@ -114,6 +134,7 @@ export default function AdminPage() {
     subscriptionPlan: "starter",
     farmCount: 1
   });
+
   const planMix = useMemo(() => {
     return dashboard.users.reduce((accumulator, item) => {
       const key = item.plan || item.subscriptionPlan || "starter";
@@ -149,6 +170,8 @@ export default function AdminPage() {
         setAdminError("");
       } catch (error) {
         setAdminError(error.message);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -215,223 +238,229 @@ export default function AdminPage() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="min-h-screen bg-[radial-gradient(circle_at_top_right,_rgba(243,179,0,0.15),_transparent_20%),linear-gradient(180deg,_#f7faf7_0%,_#edf6ef_100%)] p-4 dark:bg-[radial-gradient(circle_at_top_right,_rgba(243,179,0,0.14),_transparent_20%),linear-gradient(180deg,_#07170f_0%,_#0d2216_100%)] lg:p-6"
+    <DashboardShell
+      sectionIds={adminSectionIds}
+      renderSidebar={({ activeSection, closeSidebar }) => (
+        <Sidebar
+          role="admin"
+          user={user}
+          onLogout={handleLogout}
+          activeSection={activeSection}
+          closeSidebar={closeSidebar}
+        />
+      )}
+      renderHeader={({ openSidebar }) => (
+        <TopBar
+          title="Admin Dashboard"
+          subtitle="Control users, analytics, revenue, sensors, and platform settings"
+          onVoiceInput={setVoiceQuery}
+          voiceQuery={voiceQuery}
+          notificationCount={6}
+          onMenuClick={openSidebar}
+          badge="System control"
+          searchPlaceholder="Try: show revenue trend this month"
+        />
+      )}
     >
-      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[280px_1fr]">
-        <Sidebar role="admin" user={user} onLogout={handleLogout} />
+      {adminError && (
+        <div className="rounded-[24px] border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
+          Admin data is showing safe fallback values while the API reconnects: {adminError}
+        </div>
+      )}
 
-        <div className="space-y-6">
-          <TopBar
-            title={t("admin.title")}
-            subtitle={t("admin.subtitle")}
-            onVoiceInput={setVoiceQuery}
-            voiceQuery={voiceQuery}
-            notificationCount={6}
-          />
-
-          {adminError && (
-            <div className="rounded-[24px] border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
-              Admin data is showing safe fallback values while the API reconnects: {adminError}
+      <DashboardPanelCard id="admin-overview" className="bg-[linear-gradient(135deg,rgba(241,251,244,0.98),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(135deg,rgba(30,80,52,0.52),rgba(7,23,15,0.85))]">
+        <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-2 rounded-full bg-primary-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary-700 dark:text-primary-200">
+                <Sparkles className="h-3.5 w-3.5" />
+                Live operations
+              </span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-white/10 dark:text-slate-300">
+                {dashboard.activeSessions} active sessions
+              </span>
             </div>
-          )}
-
-          <div id="admin-overview" className="scroll-mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <MetricCard label="Total users" value={dashboard.metrics.totalUsers} delta="+14.8%" />
-            <MetricCard label="Monthly revenue" value={dashboard.metrics.monthlyRevenue} delta="MRR" tone="accent" />
-            <MetricCard label="Active sensors" value={dashboard.metrics.activeSensors} delta="97% uptime" />
-            <MetricCard label="Prediction accuracy" value={dashboard.metrics.predictionAccuracy} delta={`${dashboard.activeSessions} active sessions`} tone="success" />
+            <h2 className="mt-5 font-display text-4xl font-bold text-slate-950 dark:text-white">
+              One control center for users, revenue, sensors, and AI quality.
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-8 text-slate-600 dark:text-slate-300">
+              The backend APIs stay unchanged. This view only upgrades the workspace presentation so operators can scan activity faster and act without UI clutter.
+            </p>
           </div>
 
-          <div id="admin-revenue" className="scroll-mt-8 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-            <ChartBlock title="Revenue dashboard" subtitle="Subscription growth and monetization trend">
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={dashboard.revenueTrend}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.18)" />
-                    <XAxis dataKey="month" stroke="#64748b" />
-                    <YAxis stroke="#64748b" />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="revenue" stroke="#349e61" strokeWidth={3} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </ChartBlock>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-[24px] bg-primary-950 p-5 text-white shadow-[0_24px_70px_rgba(7,23,15,0.24)]">
+              <p className="text-xs uppercase tracking-[0.18em] text-primary-100/55">Users</p>
+              <p className="mt-3 text-3xl font-bold">{dashboard.metrics.totalUsers}</p>
+              <p className="mt-2 text-sm text-primary-100/75">Across farmer and admin roles</p>
+            </div>
+            <div className="rounded-[24px] bg-white p-5 shadow-sm dark:bg-white/5">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Revenue</p>
+              <p className="mt-3 text-3xl font-bold text-slate-950 dark:text-white">{dashboard.metrics.monthlyRevenue}</p>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Monthly recurring revenue</p>
+            </div>
+            <div className="rounded-[24px] bg-white p-5 shadow-sm dark:bg-white/5">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">AI Quality</p>
+              <p className="mt-3 text-3xl font-bold text-slate-950 dark:text-white">{dashboard.metrics.predictionAccuracy}</p>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Prediction confidence score</p>
+            </div>
+          </div>
+        </div>
+      </DashboardPanelCard>
 
-            <ChartBlock title="AI prediction mix" subtitle="Distribution across core intelligence modules">
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={dashboard.predictionMix}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius={70}
-                      outerRadius={100}
-                      paddingAngle={3}
-                    >
-                      {dashboard.predictionMix.map((entry, index) => (
-                        <Cell key={entry.name} fill={colors[index % colors.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </ChartBlock>
+      {loading ? (
+        <DashboardSkeleton cards={4} panels={3} />
+      ) : (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <DashboardStatCard label="Total Users" value={dashboard.metrics.totalUsers} helper="All roles" icon={Users} tone="success" />
+            <DashboardStatCard label="Monthly Revenue" value={dashboard.metrics.monthlyRevenue} helper="MRR" icon={IndianRupee} tone="accent" />
+            <DashboardStatCard label="Active Sensors" value={dashboard.metrics.activeSensors} helper="97% uptime" icon={Radar} />
+            <DashboardStatCard label="Prediction Accuracy" value={dashboard.metrics.predictionAccuracy} helper={`${dashboard.activeSessions} live sessions`} icon={ShieldCheck} />
           </div>
 
-          <div id="admin-analytics" className="scroll-mt-8 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-            <ChartBlock title="User growth" subtitle="Farmers and admins onboarded over time">
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={dashboard.userGrowth}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.18)" />
-                    <XAxis dataKey="month" stroke="#64748b" />
-                    <YAxis stroke="#64748b" />
-                    <Tooltip />
-                    <Bar dataKey="users" fill="#349e61" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </ChartBlock>
+          <div className="grid gap-4 xl:grid-cols-2">
+            <DashboardChartCard id="admin-analytics" title="User Growth" subtitle="Farmers and admins onboarded over time" icon={Users}>
+              {dashboard.userGrowth?.length ? (
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dashboard.userGrowth}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.18)" />
+                      <XAxis dataKey="month" stroke="#64748b" />
+                      <YAxis stroke="#64748b" />
+                      <Tooltip />
+                      <Bar dataKey="users" fill="#349e61" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <DashboardEmptyState description="No data available" />
+              )}
+            </DashboardChartCard>
 
-            <GlassPanel id="admin-ai" className="scroll-mt-8 rounded-[30px] p-6">
-              <h3 className="font-display text-2xl font-bold text-slate-950 dark:text-white">AI predictions overview</h3>
-              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                Operational readout of the highest-volume AI modules.
-              </p>
+            <DashboardChartCard id="admin-ai" title="AI Prediction Mix" subtitle="Distribution across core intelligence modules" icon={Cpu}>
+              {dashboard.predictionMix?.length ? (
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={dashboard.predictionMix} dataKey="value" nameKey="name" innerRadius={70} outerRadius={100} paddingAngle={3}>
+                        {dashboard.predictionMix.map((entry, index) => (
+                          <Cell key={entry.name} fill={colors[index % colors.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <DashboardEmptyState description="No data available" />
+              )}
+            </DashboardChartCard>
+          </div>
 
-              <div className="mt-6 space-y-4">
-                {dashboard.aiPredictions.map((item) => (
-                  <div key={item.title} className="rounded-[24px] border border-slate-200/70 bg-white/80 p-5 dark:border-white/10 dark:bg-white/5">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-primary-500/12 text-primary-700 dark:text-primary-300">
-                          <Cpu className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-900 dark:text-white">{item.title}</p>
-                          <p className="text-sm text-slate-500 dark:text-slate-400">{item.volume}</p>
-                        </div>
+          <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+            <DashboardChartCard id="admin-revenue" title="Revenue Trend" subtitle="Subscription growth and monetization trend" icon={IndianRupee}>
+              {dashboard.revenueTrend?.length ? (
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={dashboard.revenueTrend}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.18)" />
+                      <XAxis dataKey="month" stroke="#64748b" />
+                      <YAxis stroke="#64748b" />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="revenue" stroke="#349e61" strokeWidth={3} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <DashboardEmptyState description="No data available" />
+              )}
+            </DashboardChartCard>
+
+            <DashboardPanelCard id="admin-sensors" title="Sensor Fleet Health" subtitle="Zone-wise active sensor percentage" icon={Radar}>
+              {dashboard.sensorHealth?.length ? (
+                <div className="space-y-4">
+                  {dashboard.sensorHealth.map((item) => (
+                    <div key={item.zone}>
+                      <div className="mb-2 flex items-center justify-between text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        <span>{item.zone}</span>
+                        <span>{item.active}%</span>
                       </div>
-                      <span className="rounded-full bg-primary-500/10 px-3 py-1 text-xs font-semibold text-primary-700 dark:text-primary-300">
-                        {item.score}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 rounded-[24px] border border-slate-200/70 bg-white/80 p-5 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-700 dark:text-primary-300">
-                  Feature usage
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {Object.entries(dashboard.featureUsage || {}).slice(0, 6).map(([key, value]) => (
-                    <div key={key} className="rounded-2xl bg-slate-100/80 px-4 py-3 dark:bg-white/5">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                        {key}
-                      </p>
-                      <p className="mt-2 text-lg font-bold text-slate-950 dark:text-white">{value} runs</p>
+                      <div className="h-3 rounded-full bg-slate-200 dark:bg-white/10">
+                        <div className="h-3 rounded-full bg-gradient-to-r from-primary-500 to-accent-400" style={{ width: `${item.active}%` }} />
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </GlassPanel>
+              ) : (
+                <DashboardEmptyState description="No data available" />
+              )}
+            </DashboardPanelCard>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-            <ChartBlock title="Sensor fleet health" subtitle="Zone-wise active sensor percentage">
-              <div className="space-y-4">
-                {dashboard.sensorHealth.map((item) => (
-                  <div key={item.zone}>
-                    <div className="mb-2 flex items-center justify-between text-sm font-semibold text-slate-700 dark:text-slate-200">
-                      <span>{item.zone}</span>
-                      <span>{item.active}%</span>
-                    </div>
-                    <div className="h-3 rounded-full bg-slate-200 dark:bg-white/10">
-                      <div className="h-3 rounded-full bg-gradient-to-r from-primary-500 to-accent-400" style={{ width: `${item.active}%` }} />
-                    </div>
-                  </div>
-                ))}
+          <DashboardPanelCard
+            id="admin-users"
+            title="User Management"
+            subtitle="Create farmers or admins, assign plans, and block or unblock access"
+            icon={Users}
+            action={
+              <div className="rounded-2xl bg-primary-500/10 px-4 py-3 text-sm font-semibold text-primary-700 dark:text-primary-200">
+                {dashboard.users.length} users visible
               </div>
-            </ChartBlock>
+            }
+          >
+            <div className="overflow-x-auto">
+              <form onSubmit={createUserRecord} className="mb-6 grid gap-4 rounded-[24px] border border-slate-200/80 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/5 md:grid-cols-2 xl:grid-cols-6">
+                <input
+                  value={newUser.name}
+                  onChange={(event) => setNewUser((current) => ({ ...current, name: event.target.value }))}
+                  placeholder="Full name"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
+                  required
+                />
+                <input
+                  type="email"
+                  value={newUser.email}
+                  onChange={(event) => setNewUser((current) => ({ ...current, email: event.target.value }))}
+                  placeholder="Email"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
+                  required
+                />
+                <input
+                  type="password"
+                  value={newUser.password}
+                  onChange={(event) => setNewUser((current) => ({ ...current, password: event.target.value }))}
+                  placeholder="Password"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
+                  required
+                />
+                <select
+                  value={newUser.role}
+                  onChange={(event) => setNewUser((current) => ({ ...current, role: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
+                >
+                  <option value="farmer">Farmer</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <select
+                  value={newUser.subscriptionPlan}
+                  onChange={(event) => setNewUser((current) => ({ ...current, subscriptionPlan: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
+                >
+                  <option value="starter">Starter</option>
+                  <option value="growth">Growth</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+                <button
+                  type="submit"
+                  disabled={creatingUser}
+                  className="rounded-2xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-500 disabled:opacity-70"
+                >
+                  {creatingUser ? "Creating..." : "Create user"}
+                </button>
+              </form>
 
-            <GlassPanel id="admin-users" className="scroll-mt-8 rounded-[30px] p-6">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-display text-2xl font-bold text-slate-950 dark:text-white">Manage users</h3>
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                    Admin roster, farmer accounts, and subscription visibility.
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <div className="inline-flex items-center gap-2 rounded-2xl bg-primary-500/10 px-4 py-3 text-sm font-semibold text-primary-700 dark:text-primary-200">
-                    <Users className="h-4 w-4" />
-                    {dashboard.users.length} visible
-                  </div>
-                  <div className="inline-flex items-center gap-2 rounded-2xl bg-accent-500/10 px-4 py-3 text-sm font-semibold text-accent-800 dark:text-accent-200">
-                    <IndianRupee className="h-4 w-4" />
-                    Starter at \u20B999
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 overflow-x-auto">
-                <form onSubmit={createUserRecord} className="mb-6 grid gap-4 rounded-[24px] border border-slate-200/70 bg-white/80 p-5 dark:border-white/10 dark:bg-white/5 md:grid-cols-2 xl:grid-cols-6">
-                  <input
-                    value={newUser.name}
-                    onChange={(event) => setNewUser((current) => ({ ...current, name: event.target.value }))}
-                    placeholder="Full name"
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
-                    required
-                  />
-                  <input
-                    type="email"
-                    value={newUser.email}
-                    onChange={(event) => setNewUser((current) => ({ ...current, email: event.target.value }))}
-                    placeholder="Email"
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
-                    required
-                  />
-                  <input
-                    type="password"
-                    value={newUser.password}
-                    onChange={(event) => setNewUser((current) => ({ ...current, password: event.target.value }))}
-                    placeholder="Password"
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
-                    required
-                  />
-                  <select
-                    value={newUser.role}
-                    onChange={(event) => setNewUser((current) => ({ ...current, role: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
-                  >
-                    <option value="farmer">Farmer</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                  <select
-                    value={newUser.subscriptionPlan}
-                    onChange={(event) => setNewUser((current) => ({ ...current, subscriptionPlan: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none dark:border-white/10 dark:bg-white/5"
-                  >
-                    <option value="starter">Starter</option>
-                    <option value="growth">Growth</option>
-                    <option value="enterprise">Enterprise</option>
-                  </select>
-                  <button
-                    type="submit"
-                    disabled={creatingUser}
-                    className="rounded-2xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-500 disabled:opacity-70"
-                  >
-                    {creatingUser ? "Creating..." : "Create user"}
-                  </button>
-                </form>
-
+              {dashboard.users.length ? (
                 <table className="min-w-full text-left">
                   <thead>
                     <tr className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
@@ -478,7 +507,7 @@ export default function AdminPage() {
                                 ? "bg-red-500/10 text-red-600 dark:text-red-300"
                                 : "bg-primary-500/10 text-primary-700 dark:text-primary-300"
                             }`}>
-                            <Radar className="h-3.5 w-3.5" />
+                              <Radar className="h-3.5 w-3.5" />
                               {item.isBlocked || item.status === "blocked" ? "Blocked" : "Active"}
                             </span>
                             <button
@@ -498,115 +527,60 @@ export default function AdminPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </GlassPanel>
-          </div>
-
-          <GlassPanel id="admin-sensors" className="scroll-mt-8 rounded-[30px] p-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h3 className="font-display text-2xl font-bold text-slate-950 dark:text-white">Manage sensors</h3>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                  Latest telemetry nodes available through the sensor data API.
-                </p>
-              </div>
-              <span className="rounded-full bg-primary-500/10 px-4 py-2 text-sm font-semibold text-primary-700 dark:text-primary-300">
-                {dashboard.sensors.length} active feeds
-              </span>
+              ) : (
+                <DashboardEmptyState description="No data available" />
+              )}
             </div>
+          </DashboardPanelCard>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              {dashboard.sensors.slice(0, 3).map((sensor) => (
-                <div
-                  key={sensor._id}
-                  className="rounded-[24px] border border-slate-200/70 bg-white/80 p-5 dark:border-white/10 dark:bg-white/5"
-                >
-                  <p className="text-xs uppercase tracking-[0.18em] text-primary-700 dark:text-primary-300">
-                    {sensor.farm?.name || "Registered farm"}
-                  </p>
-                  <p className="mt-3 font-display text-xl font-bold text-slate-950 dark:text-white">
-                    {sensor.sensorType}
-                  </p>
-                  <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-                    {sensor.value}
-                    {sensor.unit}
-                  </p>
-                  <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Status: {sensor.status}</p>
+          <div id="admin-leads" className="grid gap-4 xl:grid-cols-[0.88fr_1.12fr]">
+            <DashboardPanelCard title="Subscription Mix" subtitle="Users segmented by active plan" icon={IndianRupee}>
+              {Object.entries(planMix).length ? (
+                <div className="grid gap-4 md:grid-cols-3">
+                  {Object.entries(planMix).map(([plan, count]) => (
+                    <div key={plan} className="rounded-[24px] border border-slate-200/80 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/5">
+                      <p className="text-xs uppercase tracking-[0.18em] text-primary-700 dark:text-primary-300">{plan}</p>
+                      <p className="mt-3 text-3xl font-bold text-slate-950 dark:text-white">{count}</p>
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">accounts on this plan</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </GlassPanel>
+              ) : (
+                <DashboardEmptyState description="No data available" />
+              )}
+            </DashboardPanelCard>
 
-          <div id="admin-leads" className="scroll-mt-8 grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-            <GlassPanel className="rounded-[30px] p-6">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-display text-2xl font-bold text-slate-950 dark:text-white">Subscription mix</h3>
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                    Users segmented by current plan visibility.
-                  </p>
-                </div>
-                <span className="rounded-full bg-primary-500/10 px-4 py-2 text-sm font-semibold text-primary-700 dark:text-primary-300">
-                  {Object.keys(planMix).length} plans active
-                </span>
-              </div>
-
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                {Object.entries(planMix).map(([plan, count]) => (
-                  <div
-                    key={plan}
-                    className="rounded-[24px] border border-slate-200/70 bg-white/80 p-5 dark:border-white/10 dark:bg-white/5"
-                  >
-                    <p className="text-xs uppercase tracking-[0.18em] text-primary-700 dark:text-primary-300">{plan}</p>
-                    <p className="mt-3 text-3xl font-bold text-slate-950 dark:text-white">{count}</p>
-                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">accounts on this plan</p>
-                  </div>
-                ))}
-              </div>
-            </GlassPanel>
-
-            <GlassPanel className="rounded-[30px] p-6">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-display text-2xl font-bold text-slate-950 dark:text-white">Contact registrations</h3>
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                    Leads captured from the website contact and registration modal.
-                  </p>
-                </div>
-                <span className="rounded-full bg-accent-500/10 px-4 py-2 text-sm font-semibold text-accent-800 dark:text-accent-200">
-                  {dashboard.contactLeads.length} leads
-                </span>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                {dashboard.contactLeads.map((lead) => (
-                  <div
-                    key={lead._id}
-                    className="rounded-[24px] border border-slate-200/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5"
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-slate-900 dark:text-white">{lead.name}</p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">{lead.email}</p>
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{lead.phone || "Phone not shared"}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs uppercase tracking-[0.18em] text-primary-700 dark:text-primary-300">{lead.interest}</p>
-                        <p className="mt-2 text-sm font-medium capitalize text-slate-600 dark:text-slate-300">{lead.role}</p>
-                        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent-700 dark:text-accent-300">
-                          {lead.status || "new"}
-                        </p>
+            <DashboardPanelCard title="Contact Registrations" subtitle="Leads captured from website contact and registration flows" icon={Activity}>
+              {dashboard.contactLeads?.length ? (
+                <div className="space-y-3">
+                  {dashboard.contactLeads.map((lead) => (
+                    <div key={lead._id} className="rounded-[24px] border border-slate-200/80 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-slate-900 dark:text-white">{lead.name}</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{lead.email}</p>
+                          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{lead.phone || "Phone not shared"}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs uppercase tracking-[0.18em] text-primary-700 dark:text-primary-300">{lead.interest}</p>
+                          <p className="mt-2 text-sm font-medium capitalize text-slate-600 dark:text-slate-300">{lead.role}</p>
+                          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent-700 dark:text-accent-300">
+                            {lead.status || "new"}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </GlassPanel>
+                  ))}
+                </div>
+              ) : (
+                <DashboardEmptyState description="No data available" />
+              )}
+            </DashboardPanelCard>
           </div>
 
           <AdminSettingsPanel />
-        </div>
-      </div>
-    </motion.div>
+        </>
+      )}
+    </DashboardShell>
   );
 }

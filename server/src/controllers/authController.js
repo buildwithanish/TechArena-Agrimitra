@@ -24,7 +24,7 @@ function userPayload(user) {
 }
 
 export const signup = asyncHandler(async (req, res) => {
-  const { name, email, password, role = "farmer" } = req.body;
+  const { name, email, password, role = "farmer", language = "en" } = req.body;
 
   if (!name || !email || !password) {
     res.status(400);
@@ -42,7 +42,8 @@ export const signup = asyncHandler(async (req, res) => {
     name,
     email,
     password: hashedPassword,
-    role
+    role,
+    language
   });
 
   res.status(201).json({

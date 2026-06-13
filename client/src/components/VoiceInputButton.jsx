@@ -1,6 +1,7 @@
 import { Mic, MicOff } from "lucide-react";
+import { getLanguageMeta } from "../data/languages";
 
-export default function VoiceInputButton({ onTranscript, compact = false }) {
+export default function VoiceInputButton({ onTranscript, compact = false, label = "Voice input" }) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   function startVoiceInput() {
@@ -10,7 +11,7 @@ export default function VoiceInputButton({ onTranscript, compact = false }) {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = localStorage.getItem("ai-village-brain-language") === "hi" ? "hi-IN" : "en-US";
+    recognition.lang = getLanguageMeta(localStorage.getItem("ai-village-brain-language")).speechCode;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     recognition.start();
@@ -28,7 +29,7 @@ export default function VoiceInputButton({ onTranscript, compact = false }) {
       }`}
     >
       {SpeechRecognition ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-      Voice input
+      {label}
     </button>
   );
 }

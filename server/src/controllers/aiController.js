@@ -13,6 +13,8 @@ import {
   getPestDetection,
   getYieldPrediction
 } from "../services/aiEngine.js";
+import { localizeValue } from "../services/localizationService.js";
+import { normalizeLanguage } from "../config/languages.js";
 
 async function savePrediction(userId, type, input, output) {
   const farm = await findFarmByOwner(userId);
@@ -29,52 +31,63 @@ async function savePrediction(userId, type, input, output) {
 }
 
 export const cropRecommendation = asyncHandler(async (req, res) => {
-  const result = getCropRecommendation(req.body);
+  const language = normalizeLanguage(req.body?.language || req.user?.language);
+  const result = localizeValue(getCropRecommendation(req.body), language);
   await savePrediction(req.user._id, "crop", req.body, result);
-  res.json({ success: true, data: result });
+  res.json({ success: true, data: result, meta: { language } });
 });
 
 export const fertilizerOptimization = asyncHandler(async (req, res) => {
-  const result = getFertilizerOptimization(req.body);
+  const language = normalizeLanguage(req.body?.language || req.user?.language);
+  const result = localizeValue(getFertilizerOptimization(req.body), language);
   await savePrediction(req.user._id, "fertilizer", req.body, result);
-  res.json({ success: true, data: result });
+  res.json({ success: true, data: result, meta: { language } });
 });
 
 export const pestDetection = asyncHandler(async (req, res) => {
-  const result = getPestDetection({
-    ...req.body,
-    filename: req.file?.originalname
-  });
+  const language = normalizeLanguage(req.body?.language || req.user?.language);
+  const result = localizeValue(
+    getPestDetection({
+      ...req.body,
+      filename: req.file?.originalname
+    }),
+    language
+  );
   await savePrediction(req.user._id, "pest", req.body, result);
-  res.json({ success: true, data: result });
+  res.json({ success: true, data: result, meta: { language } });
 });
 
 export const yieldPrediction = asyncHandler(async (req, res) => {
-  const result = getYieldPrediction(req.body);
+  const language = normalizeLanguage(req.body?.language || req.user?.language);
+  const result = localizeValue(getYieldPrediction(req.body), language);
   await savePrediction(req.user._id, "yield", req.body, result);
-  res.json({ success: true, data: result });
+  res.json({ success: true, data: result, meta: { language } });
 });
 
 export const marketPricePrediction = asyncHandler(async (req, res) => {
-  const result = getMarketPricePrediction(req.body);
+  const language = normalizeLanguage(req.body?.language || req.user?.language);
+  const result = localizeValue(getMarketPricePrediction(req.body), language);
   await savePrediction(req.user._id, "market", req.body, result);
-  res.json({ success: true, data: result });
+  res.json({ success: true, data: result, meta: { language } });
 });
 
 export const cropHealthScore = asyncHandler(async (req, res) => {
-  const result = getCropHealthScore(req.body);
+  const language = normalizeLanguage(req.body?.language || req.user?.language);
+  const result = localizeValue(getCropHealthScore(req.body), language);
   await savePrediction(req.user._id, "crop-health", req.body, result);
-  res.json({ success: true, data: result });
+  res.json({ success: true, data: result, meta: { language } });
 });
 
 export const insuranceRiskPrediction = asyncHandler(async (req, res) => {
-  const result = getInsuranceRiskPrediction(req.body);
+  const language = normalizeLanguage(req.body?.language || req.user?.language);
+  const result = localizeValue(getInsuranceRiskPrediction(req.body), language);
   await savePrediction(req.user._id, "insurance", req.body, result);
-  res.json({ success: true, data: result });
+  res.json({ success: true, data: result, meta: { language } });
 });
 
 export const digitalTwinSimulation = asyncHandler(async (req, res) => {
-  const result = getDigitalTwinSimulation(req.body);
+  const language = normalizeLanguage(req.body?.language || req.user?.language);
+  const result = localizeValue(getDigitalTwinSimulation(req.body), language);
   await savePrediction(req.user._id, "digital-twin", req.body, result);
-  res.json({ success: true, data: result });
+  res.json({ success: true, data: result, meta: { language } });
 });

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { supportedLanguageCodes } from "../config/languages.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -25,7 +26,7 @@ const userSchema = new mongoose.Schema(
     },
     language: {
       type: String,
-      enum: ["en", "hi"],
+      enum: supportedLanguageCodes,
       default: "en"
     },
     subscriptionPlan: {

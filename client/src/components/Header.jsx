@@ -19,6 +19,7 @@ import { useSettings } from "../contexts/SettingsContext";
 import { headerNavigation, topBarInfo } from "../data/marketing";
 import AnnouncementBar from "./AnnouncementBar";
 import AppLink from "./AppLink";
+import LanguageMenu from "./LanguageMenu";
 
 function DesktopLink({ item, onContactClick }) {
   if (item.action === "contact-modal") {
@@ -480,6 +481,7 @@ export default function Header() {
             </nav>
 
             <div className="hidden items-center gap-3 xl:flex">
+              <LanguageMenu />
               <button
                 type="button"
                 className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/80 text-slate-700 transition hover:-translate-y-0.5 hover:border-primary-400/35 hover:text-primary-700 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:text-primary-300"
@@ -546,6 +548,7 @@ export default function Header() {
                       <p className="text-slate-500 dark:text-slate-400">Talk to our agriculture product team.</p>
                     </div>
                   </div>
+                  <LanguageMenu />
                 </div>
 
                 <Link

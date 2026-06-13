@@ -1,6 +1,6 @@
-import { Bell, Search, Sparkles } from "lucide-react";
+import { Bell, Menu, Search, Sparkles } from "lucide-react";
 import ThemeToggle from "../ThemeToggle";
-import LanguageToggle from "../LanguageToggle";
+import LanguageMenu from "../LanguageMenu";
 import VoiceInputButton from "../VoiceInputButton";
 
 export default function TopBar({
@@ -8,29 +8,41 @@ export default function TopBar({
   subtitle,
   onVoiceInput,
   voiceQuery,
-  notificationCount = 0
+  notificationCount = 0,
+  onMenuClick,
+  badge = "Live workspace",
+  searchPlaceholder = "Try: market trend for tomato"
 }) {
   return (
-    <div className="glass-panel rounded-[30px] p-5">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="inline-flex items-center gap-2 rounded-full bg-primary-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary-700 dark:text-primary-300">
+    <div className="sticky top-3 z-30 rounded-[30px] border border-primary-100/90 bg-white/88 p-4 shadow-panel backdrop-blur-xl dark:border-white/10 dark:bg-primary-950/80 lg:top-6 lg:p-5">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex items-start gap-3">
+          <button
+            type="button"
+            onClick={onMenuClick}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-primary-100 bg-primary-50 text-primary-700 xl:hidden"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full bg-primary-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary-700 dark:text-primary-300">
             <Sparkles className="h-3.5 w-3.5" />
-            Live command center
-          </p>
-          <h1 className="mt-4 font-display text-3xl font-bold text-slate-950 dark:text-white">{title}</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">{subtitle}</p>
+            {badge}
+            </p>
+            <h1 className="mt-3 font-display text-3xl font-bold text-slate-950 dark:text-white">{title}</h1>
+            <p className="mt-1 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">{subtitle}</p>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white/80 px-4 py-3 text-sm text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+          <div className="flex min-w-[240px] flex-1 items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-sm text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 xl:min-w-[360px]">
             <Search className="h-4 w-4 text-primary-600" />
-            <span>{voiceQuery || "Try: show market trend for tomato"}</span>
+            <span className="truncate">{voiceQuery || searchPlaceholder}</span>
           </div>
           <VoiceInputButton compact onTranscript={onVoiceInput} />
-          <LanguageToggle />
+          <LanguageMenu />
           <ThemeToggle />
-          <div className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200/70 bg-white/80 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-white">
+          <div className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200/80 bg-slate-50 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-white">
             <Bell className="h-4 w-4" />
             <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-accent-500 px-1 text-[10px] font-bold text-slate-950">
               {notificationCount}
